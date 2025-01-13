@@ -22,17 +22,7 @@ resource "helm_release" "argocd" {
       server = {
         ingress = {
           enabled          = true
-          ingressClassName = "external-nginx"
-          annotations = {
-            "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true"
-            "nginx.ingress.kubernetes.io/backend-protocol"   = "HTTP"
-          }
-          extraTls = [
-            {
-              hosts      = ["argocd.${var.domain_name}"] # Replace with your domain
-              secretName = "wildcard-tls"               # Secret containing TLS certificates
-            }
-          ]
+          ingressClassName = "nginx"
         }
       }
     })

@@ -7,6 +7,11 @@ resource "helm_release" "ingress-nginx" {
   namespace        = "ingress"
   create_namespace = true
 
+   set {
+    name  = "controller.service.type"
+    value = "NodePort"
+  }
+
 
   # values = [
   #   yamlencode({
@@ -35,7 +40,7 @@ resource "kubectl_manifest" "nginx_test_ingress" {
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: "${var.project}nginx-ingress"
+  name: "${var.project}-nginx-ingress"
   namespace: ingress
   annotations:
     alb.ingress.kubernetes.io/ssl-redirect: "443"
@@ -52,7 +57,7 @@ spec:
             pathType: ImplementationSpecific
             backend:
               service:
-                name: external-ingress-nginx-controller
+                name: ${var.project}-ingress-nginx-controller
                 port:
                   number: 80
 EOT
