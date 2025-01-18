@@ -14,6 +14,11 @@ locals {
     cidrsubnet(local.vpc_cidr, 8, az_index + local.az_count)
   ]
 
+  database_subnets = [
+    for az_index in range(local.az_count) :
+    cidrsubnet(local.vpc_cidr, 8, az_index + local.az_count + local.az_count)
+  ]
+
   # Map AZs to their names
   azs = data.aws_availability_zones.available.names
 
@@ -29,13 +34,12 @@ locals {
   ########## variables ###############
   environment       = "dev"
   instance_type     = "t2.medium"
-  project           = "pokerogue-dev"
+  project           = "quotes-dev"
   vpc_cidr          = "192.168.0.0/16"
   region            = "us-east-1"
-  localAdminAccount = "767397954823"
+  localAdminAccount = jsondecode(data.aws_secretsmanager_secret_version.example.secret_string)["localAdminAccount"]
   domain_name = "oyad.store"
-  hostedZoneID = "Z00239011XNDU2W7J7TM6"
-  email = "oranxbox@gmail.com"
+  hostedZoneID = jsondecode(data.aws_secretsmanager_secret_version.example.secret_string)["hostedZoneID"]
 
 }
 
@@ -43,3 +47,11 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+
+data "aws_secretsmanager_secret" "environment_secrets" {
+  name = "environment_secrets"
+}
+
+data "aws_secretsmanager_secret_version" "example" {
+  secret_id = data.aws_secretsmanager_secret.environment_secrets.id
+}

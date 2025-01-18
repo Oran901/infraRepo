@@ -5,6 +5,7 @@ module "eks-infra" {
   az_count          = local.az_count
   public_subnets    = local.public_subnets
   private_subnets   = local.private_subnets
+  database_subnets  = local.database_subnets
   azs               = local.azs
   sg_inbound        = local.sg_inbound
   environment       = local.environment
@@ -23,10 +24,10 @@ module "eks-helm" {
   localAdminAccount = local.localAdminAccount
   domain_name = local.domain_name
   hostedZoneID = local.hostedZoneID
-  email = local.email
   oidc_provider = module.eks-infra.oidc_provider
   oidc_provider_arn = module.eks-infra.oidc_provider_arn
   vpc_id = module.eks-infra.vpc_id
+  db_endpoint_arn = module.eks-infra.db_endpoint_arn
 
   depends_on = [ module.eks-infra ]
 }

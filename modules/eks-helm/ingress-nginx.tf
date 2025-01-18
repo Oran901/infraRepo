@@ -9,7 +9,7 @@ resource "helm_release" "ingress-nginx" {
 
    set {
     name  = "controller.service.type"
-    value = "NodePort"
+    value = "ClusterIP"
   }
 
 

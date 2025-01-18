@@ -36,7 +36,11 @@ terraform {
     kubectl = {
       source  = "gavinbunney/kubectl"
       version = ">= 1.7.0"
-    }  
+    }
+    aws = {
+      source = "hashicorp/aws"
+      version = "~> 5.81"
+    }
   }
 
   required_version = ">= 0.13"

@@ -4,6 +4,8 @@ resource "aws_eks_addon" "pod_identity" {
   addon_version = "v1.3.4-eksbuild.1"
 }
 
+############# lbc iam ################
+
 data "aws_iam_policy_document" "aws_lbc" {
   statement {
     effect = "Allow"
@@ -67,3 +69,58 @@ resource "helm_release" "aws_lbc" {
 
   depends_on = [ aws_eks_addon.pod_identity ]
 }
+
+
+
+########### secrets iam ##############
+
+data "aws_iam_policy_document" "myapp_secrets" {
+  statement {
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+    effect  = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "${var.oidc_provider}:sub"
+      values   = ["system:serviceaccount:external-secrets:${var.environment}-serviceaccount-externalsecrets"]
+    }
+
+    principals {
+      identifiers = [var.oidc_provider_arn]
+      type        = "Federated"
+    }
+  }
+}
+
+resource "aws_iam_role" "myapp_secrets" {
+  name               = "${var.cluster_name}-myapp-secrets"
+  assume_role_policy = data.aws_iam_policy_document.myapp_secrets.json
+}
+
+resource "aws_iam_policy" "myapp_secrets" {
+  name = "${var.cluster_name}-myapp-secrets"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:ListSecretVersionIds"
+        ]
+        Resource = [
+          "arn:aws:secretsmanager:us-east-1:767397954823:secret:mysql_cred-aqnnmC",
+          var.db_endpoint_arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "myapp_secrets" {
+  policy_arn = aws_iam_policy.myapp_secrets.arn
+  role       = aws_iam_role.myapp_secrets.name
+}
+

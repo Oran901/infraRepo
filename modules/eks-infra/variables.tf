@@ -40,6 +40,12 @@ variable "private_subnets" {
   type        = list(string)
 }
 
+variable "database_subnets" {
+  description = "List of CIDR blocks for database subnets."
+  type        = list(string)
+}
+
+
 variable "azs" {
   description = "List of availability zone names."
   type        = list(string)

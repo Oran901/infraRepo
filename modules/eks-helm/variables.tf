@@ -30,11 +30,6 @@ variable "hostedZoneID" {
   
 }
 
-variable "email" {
-  description = "email for notifications"
-  type = string
-}
-
 variable "cluster_name" {
   description = "eks cluster name"
   type = string
@@ -52,5 +47,10 @@ variable "oidc_provider_arn" {
 
 variable "vpc_id" {
   description = "vpc id"
+  type = string
+}
+
+variable "db_endpoint_arn" {
+  description = "arn secret endpoint for the database"
   type = string
 }

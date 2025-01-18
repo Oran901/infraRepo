@@ -27,3 +27,8 @@ output "vpc_id" {
   description = "vpc id"
   value = module.vpc.vpc_id
 }
+
+output "db_endpoint_arn" {
+  description = "arn secret endpoint for the database"
+  value = module.secret_manager.secret_arn
+}
