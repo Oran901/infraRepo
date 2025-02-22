@@ -27,7 +27,6 @@ module "eks-helm" {
   oidc_provider = module.eks-infra.oidc_provider
   oidc_provider_arn = module.eks-infra.oidc_provider_arn
   vpc_id = module.eks-infra.vpc_id
-  db_endpoint_arn = module.eks-infra.db_endpoint_arn
 
   depends_on = [ module.eks-infra ]
 }

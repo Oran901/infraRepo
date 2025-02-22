@@ -18,6 +18,10 @@ module "eks" {
     disk_size = 50
   }
 
+  iam_role_additional_policies = {
+       ecr_read_only =  "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+      }
+
   eks_managed_node_groups = {
     general = {
       desired_size = 3

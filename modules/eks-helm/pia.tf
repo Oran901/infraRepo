@@ -110,9 +110,9 @@ resource "aws_iam_policy" "myapp_secrets" {
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecretVersionIds"
         ]
-        Resource = [
+        Resource =  [
           "arn:aws:secretsmanager:us-east-1:767397954823:secret:mysql_cred-aqnnmC",
-          var.db_endpoint_arn
+          "arn:aws:secretsmanager:us-east-1:767397954823:secret:db_endpoint-h7pcLc"
         ]
       }
     ]

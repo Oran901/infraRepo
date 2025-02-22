@@ -50,7 +50,3 @@ variable "vpc_id" {
   type = string
 }
 
-variable "db_endpoint_arn" {
-  description = "arn secret endpoint for the database"
-  type = string
-}

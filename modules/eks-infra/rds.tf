@@ -71,10 +71,3 @@ data "aws_secretsmanager_secret_version" "example" {
   secret_id = data.aws_secretsmanager_secret.db_cred.id
 }
 
-module "secret_manager" {
-  source  = "terraform-aws-modules/secrets-manager/aws"
-  version = "1.3.1"
-
-  name          = "db_endpoint"
-  secret_string = jsonencode({ "MYSQL_HOST" = split(":", module.db.db_instance_endpoint)[0] })
-}
