@@ -12,6 +12,7 @@ module "eks-infra" {
   instance_type     = local.instance_type
   project           = local.project
   region            = local.region
+  karpenter_name = local.karpenter_name
 }
 
 module "eks-helm" {
@@ -27,6 +28,13 @@ module "eks-helm" {
   oidc_provider = module.eks-infra.oidc_provider
   oidc_provider_arn = module.eks-infra.oidc_provider_arn
   vpc_id = module.eks-infra.vpc_id
+  cluster_version = module.eks-infra.cluster_version
+  cluster_endpoint = module.eks-infra.cluster_endpoint
+  karpenter_name = local.karpenter_name
+
+  providers = {
+    helm       = helm
+  }
 
   depends_on = [ module.eks-infra ]
 }

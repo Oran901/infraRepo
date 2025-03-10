@@ -28,7 +28,7 @@ resource "helm_release" "argocd" {
     })
   ]
 
-  depends_on = [ helm_release.ingress-nginx ]
+  depends_on = [helm_release.ingress-nginx]
 }
 
 

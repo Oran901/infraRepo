@@ -38,8 +38,9 @@ locals {
   vpc_cidr          = "192.168.0.0/16"
   region            = "us-east-1"
   localAdminAccount = jsondecode(data.aws_secretsmanager_secret_version.example.secret_string)["localAdminAccount"]
-  domain_name = "oyad.store"
-  hostedZoneID = jsondecode(data.aws_secretsmanager_secret_version.example.secret_string)["hostedZoneID"]
+  domain_name       = "oyad.store"
+  hostedZoneID      = jsondecode(data.aws_secretsmanager_secret_version.example.secret_string)["hostedZoneID"]
+  karpenter_name    = "eks-karpenter"
 
 }
 

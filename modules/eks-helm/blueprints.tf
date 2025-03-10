@@ -1,73 +1,67 @@
 resource "aws_eks_addon" "pod_identity" {
-  cluster_name  = var.cluster_name 
+  cluster_name  = var.cluster_name
   addon_name    = "eks-pod-identity-agent"
   addon_version = "v1.3.4-eksbuild.1"
 }
 
-############# lbc iam ################
+############# eks blueprint ################
 
-data "aws_iam_policy_document" "aws_lbc" {
-  statement {
-    effect = "Allow"
+module "eks_blueprints_addons" {
+  source  = "aws-ia/eks-blueprints-addons/aws"
+  version = "1.20.0"
 
-    principals {
-      type        = "Service"
-      identifiers = ["pods.eks.amazonaws.com"]
-    }
+  cluster_name      = var.cluster_name
+  cluster_endpoint  = var.cluster_endpoint
+  cluster_version   = var.cluster_version
+  oidc_provider_arn = var.oidc_provider_arn
 
-    actions = [
-      "sts:AssumeRole",
-      "sts:TagSession"
+  enable_aws_load_balancer_controller = true
+  enable_metrics_server               = true
+
+  aws_load_balancer_controller = {
+    name = "aws-load-balancer-controller"
+
+    repository = "https://aws.github.io/eks-charts"
+    chart      = "aws-load-balancer-controller"
+    namespace  = "kube-system"
+    version    = "1.8.1"
+
+    values = [<<-EOT
+      clusterName: ${var.cluster_name}
+      serviceAccount:
+        name: aws-load-balancer-controller
+      vpcId: ${var.vpc_id}
+    EOT
     ]
   }
-}
 
-resource "aws_iam_role" "aws_lbc" {
-  name               = "${var.cluster_name}-aws-lbc"
-  assume_role_policy = data.aws_iam_policy_document.aws_lbc.json
-}
+  metrics_server = {
+    name = "metrics-server"
 
-resource "aws_iam_policy" "aws_lbc" {
-  policy = file("${path.module}/iam/AWSLoadBalancerController.json")
-  name   = "AWSLoadBalancerController"
-}
+    repository = "https://kubernetes-sigs.github.io/metrics-server/"
+    chart      = "metrics-server"
+    namespace  = "kube-system"
+    version    = "3.12.1"
 
-resource "aws_iam_role_policy_attachment" "aws_lbc" {
-  policy_arn = aws_iam_policy.aws_lbc.arn
-  role       = aws_iam_role.aws_lbc.name
-}
-
-resource "aws_eks_pod_identity_association" "aws_lbc" {
-  cluster_name    = var.cluster_name
-  namespace       = "kube-system"
-  service_account = "aws-load-balancer-controller"
-  role_arn        = aws_iam_role.aws_lbc.arn
-}
-
-resource "helm_release" "aws_lbc" {
-  name = "aws-load-balancer-controller"
-
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
-  version    = "1.8.1"
-
-  set {
-    name  = "clusterName"
-    value = var.cluster_name
+    values = [<<EOF
+    defaultArgs:
+        - --cert-dir=/tmp
+        - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+        - --kubelet-use-node-status-port
+        - --metric-resolution=15s
+        - --secure-port=10250
+    EOF
+    ]
   }
 
-  set {
-    name  = "serviceAccount.name"
-    value = "aws-load-balancer-controller"
+   providers = {
+    helm       = helm
   }
 
-  set {
-    name  = "vpcId"
-    value = var.vpc_id
-  }
 
-  depends_on = [ aws_eks_addon.pod_identity ]
+  tags = {
+    Environment = var.environment
+  }
 }
 
 
@@ -110,7 +104,7 @@ resource "aws_iam_policy" "myapp_secrets" {
           "secretsmanager:DescribeSecret",
           "secretsmanager:ListSecretVersionIds"
         ]
-        Resource =  [
+        Resource = [
           "arn:aws:secretsmanager:us-east-1:767397954823:secret:mysql_cred-aqnnmC",
           "arn:aws:secretsmanager:us-east-1:767397954823:secret:db_endpoint-h7pcLc"
         ]

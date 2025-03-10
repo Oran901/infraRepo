@@ -7,32 +7,14 @@ resource "helm_release" "ingress-nginx" {
   namespace        = "ingress"
   create_namespace = true
 
-   set {
+  set {
     name  = "controller.service.type"
     value = "ClusterIP"
   }
 
 
-  # values = [
-  #   yamlencode({
-  #     controller = {
-  #       service = {
-  #         targetPorts = {
-  #           http  = "http"
-  #           https = "http"
-  #         }
-  #         annotations = {
-  #           "service.beta.kubernetes.io/aws-load-balancer-ssl-cert"           = module.acm.acm_certificate_arn
-  #           "service.beta.kubernetes.io/aws-load-balancer-backend-protocol"   = "http"
-  #           "service.beta.kubernetes.io/aws-load-balancer-ssl-ports"          = "https"
-  #           "service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout" = "3600"
-  #         }
-  #       }
-  #     }
-  #   })
-  # ]
-
-  depends_on = [ helm_release.aws_lbc ]
+  
+  depends_on = [module.eks_blueprints_addons]
 }
 
 resource "kubectl_manifest" "nginx_test_ingress" {

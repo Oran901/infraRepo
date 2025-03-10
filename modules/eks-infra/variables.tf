@@ -53,8 +53,13 @@ variable "azs" {
 
 variable "sg_inbound" {
   description = "Map of security group inbound rules."
-  type        = map(object({
+  type = map(object({
     port        = number
     description = string
   }))
+}
+
+variable "karpenter_name" {
+  type        = string
+  description = "name for karpenter tag on subnet"
 }

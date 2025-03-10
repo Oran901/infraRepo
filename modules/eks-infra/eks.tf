@@ -18,22 +18,34 @@ module "eks" {
     disk_size = 50
   }
 
+  cluster_addons = {
+    coredns    = {}
+    kube-proxy = {}
+    vpc-cni    = {}
+  }
+
   iam_role_additional_policies = {
-       ecr_read_only =  "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-      }
+    ecr_read_only = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  }
 
   eks_managed_node_groups = {
-    general = {
-      desired_size = 3
+    karpenter = {
+      desired_size = 2
       min_size     = 1
-      max_size     = 10
-      labels = {
-        role = "general"
-      }
+      max_size     = 5
 
       instance_type = [var.instance_type]
       capacity_type = "ON_DEMAND"
     }
 
+
   }
+  node_security_group_tags = {
+    "karpenter.sh/discovery" = "${var.project}-${var.region}-eks"
+  }
+}
+
+resource "time_sleep" "wait_100_seconds" {
+  create_duration = "100s"
+  depends_on = [ module.eks ]
 }
