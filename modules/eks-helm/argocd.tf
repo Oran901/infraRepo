@@ -10,7 +10,7 @@ resource "helm_release" "argocd" {
   values = [
     yamlencode({
       global = {
-        domain = "argocd.${var.domain_name}" # Replace with your domain
+        domain = "argocd.${var.domain_name}" 
       }
 
       configs = {

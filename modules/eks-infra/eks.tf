@@ -21,7 +21,6 @@ module "eks" {
   cluster_addons = {
     coredns    = {}
     kube-proxy = {}
-    vpc-cni    = {}
   }
 
   iam_role_additional_policies = {
